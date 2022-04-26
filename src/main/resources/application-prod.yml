@@ -5,4 +5,4 @@ npc:
   authKey: nishizhua
   serverAddr: 119.91.138.119:8024
   confPath: /data/tmp/npc.conf
-  exePath: /data/tmp/npc.exe
+  exePath: /data/tmp/npc

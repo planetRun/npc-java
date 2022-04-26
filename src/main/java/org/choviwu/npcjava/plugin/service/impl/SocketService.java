@@ -3,7 +3,6 @@ package org.choviwu.npcjava.plugin.service.impl;
 import com.alibaba.fastjson.JSON;
 import org.choviwu.npcjava.plugin.conf.NpcConfig;
 import org.choviwu.npcjava.plugin.domain.dto.TransferDTO;
-import org.choviwu.npcjava.plugin.utils.ExecuteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

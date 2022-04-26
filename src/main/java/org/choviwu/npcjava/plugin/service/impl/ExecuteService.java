@@ -1,9 +1,11 @@
-package org.choviwu.npcjava.plugin.utils;
+package org.choviwu.npcjava.plugin.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.choviwu.npcjava.plugin.conf.NpcConfig;
 import org.choviwu.npcjava.plugin.domain.dto.TransferDTO;
+import org.choviwu.npcjava.plugin.utils.TemplateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.socket.TextMessage;
@@ -35,6 +37,7 @@ public class ExecuteService {
                 return;
             }
             StopWatch stopWatch = new StopWatch();
+            // todo 需要校验操作系统
             // -config=${npc.confPath}
             log.info("准备执行stop...");
             Runtime.getRuntime().exec(npcConfig.getExePath() + " stop");
