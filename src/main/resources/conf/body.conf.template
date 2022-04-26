@@ -1,0 +1,6 @@
+[${npcUid}_web]
+#公网域名
+host=${targetUrl}
+# 内网ip:port
+target_addr=${localAddress}
+

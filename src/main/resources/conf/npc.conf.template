@@ -1,0 +1,15 @@
+[common]
+server_addr=${remoteAddress}
+conn_type=tcp
+vkey=1234
+auto_reconnection=true
+max_conn=1000
+flow_limit=1000
+rate_limit=1000
+basic_username=11
+basic_password=3
+web_username=user
+web_password=1234
+crypt=true
+compress=true
+disconnect_timeout=60

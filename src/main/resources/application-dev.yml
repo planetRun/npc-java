@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+npc:
+  authKey: nishizhua
+  serverAddr: 119.91.138.119:8024
+  confPath: D:/work/open-source/npc-java/npc.conf
+  exePath: D:/work/open-source/npc-java/src/main/resources/npc.exe
