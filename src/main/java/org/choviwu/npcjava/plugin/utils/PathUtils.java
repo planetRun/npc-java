@@ -92,6 +92,6 @@ public class PathUtils {
     public static String getExePath(String fileName) {
         String property = System.getProperty("user.home");
         log.info("用户 home: {}", property);
-        return property + File.separator + fileName;
+        return property + File.separator + ".npc/" +fileName;
     }
 }

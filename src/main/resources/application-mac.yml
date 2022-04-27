@@ -1,0 +1,7 @@
+server:
+  port: 8081
+
+npc:
+  authKey: nishizhua
+  serverAddr: 119.91.138.119:8024
+  confPath: /Users/choviwu/.npc/npc.conf

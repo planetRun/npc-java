@@ -2,7 +2,9 @@ package org.choviwu.npcjava.plugin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.choviwu.npcjava.plugin.mapper.TClientMapper;
 import org.choviwu.npcjava.plugin.utils.PathUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +25,14 @@ import java.io.InputStream;
 @Slf4j
 public class App {
 
+    @Autowired
+    private TClientMapper tClientMapper;
 
     @Bean
     public String operateBean() {
         String property = System.getProperty("os.name");
         if (property.toLowerCase().contains("wind")) {
-            InputStream exeStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("npc.exe");
+            InputStream exeStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("win/npc.exe");
             try {
                 byte[] bytes = IOUtils.toByteArray(exeStream);
 
@@ -37,8 +41,18 @@ public class App {
                 throw new RuntimeException("读取文件失败", e);
             }
             return PathUtils.getExePath("npc.exe");
+        } else if (property.toLowerCase().contains("mac")) {
+            InputStream exeStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("mac/npc");
+            try {
+                byte[] bytes = IOUtils.toByteArray(exeStream);
+
+                IOUtils.write(bytes, new FileOutputStream(PathUtils.getExePath("npc")));
+            } catch (Exception e) {
+                throw new RuntimeException("读取文件失败", e);
+            }
+            return PathUtils.getExePath("npc");
         } else {
-            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("npc");
+            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("linux/npc");
             try {
                 byte[] bytes = IOUtils.toByteArray(resourceAsStream);
 
@@ -48,6 +62,29 @@ public class App {
             }
         }
         return PathUtils.getExePath("npc");
+    }
+
+    public void init() {
+
+         tClientMapper.delete();
+//        TClient tClient = tClientMapper.query("ttt_web");
+//        if (Objects.nonNull(tClient)) {
+//            tClientMapper.updateById(2, tClient.getId());
+//        }
+//
+//        tClient = new TClient();
+//        tClient.setClientVkey("1234");
+//        tClient.setClientBasicPassword("");
+//        tClient.setClientBasicName("");
+//        tClient.setLocalUrl("localhost:8787");
+//        tClient.setServerAddr("119.91.138.119:8024");
+//        tClient.setTargetUrl("demo2.test.choviwu.top");
+//        tClient.setStatus(1);
+//        tClient.setNpcUid(RandomUtil.randomUUID()+"_web");
+//        tClient.setConnType("tcp");
+//        tClient.setTransType(1);
+//        tClient.setCreateTime(new Date());
+//        tClientMapper.insert(tClient);
     }
 
     // ./npc.exe -server=119.91.138.119:8024 -vkey="+vkey+" -type=tcp -password="+password+" -target="+target+" -local_port="+localport

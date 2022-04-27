@@ -42,8 +42,24 @@
                 </div>
             </td>
         </tr>
+        <tr id="templateTr" style="display: none">
+            <td><input type="text" name="remoteAddress" lay-verify="required|remoteAddress" autocomplete="off"
+                       value="119.91.138.119:8024" placeholder="NPS远程服务器, 如 120.11.12.11:8024" class="layui-input"></td>
+            <td><input type="text" name="targetUrl" lay-verify="required|targetUrl" autocomplete="off"
+                       value="test.test.choviwu.top"
+                       placeholder="泛解析的域名" class="layui-input"></td>
+            <td><input type="text" name="localAddress" lay-verify="required|localAddress" autocomplete="off"
+                       value="localhost:8082" placeholder="内网服务地址ip:port" class="layui-input"></td>
+            <td>
+                <div class="layui-col-sm12 layui-col-md12">
+                    <button class="layui-btn layui-btn-fluid validate" onclick="validator(this)">验证</button>
+                    <button class="layui-btn layui-btn-fluid cancel" onclick="cancel(this)" style="display: none">取消</button>
+                </div>
+            </td>
+        </tr>
     </tbody>
 </table>
+
 <script src="/static/js/drop.js" charset="utf-8"></script>
 <script src="/static/js/js.cookie.js" charset="utf-8"></script>
 <script>
@@ -65,7 +81,8 @@
             localAddress,
         }
         client = new WSSHClient();
-        client.setHost(window.location.host)
+        client.setHost(window.location.host);
+        var interval = null;
         client.connect({
             onError: function (error) {
                 //连接失败回调
@@ -75,11 +92,20 @@
                 //连接成功回调
                 client.sendInitData(data);
                 $(obj).hide()
-                $(obj).next().show()
+                $(obj).next().show();
+
+                interval = setInterval(function(){
+                    // ping
+                    client.sendClientData('ping', 'ping');
+                    console.log('ping')
+                },5000);
             },
             onClose: function () {
                 //连接关闭回调
                 console.log("\rconnection closed");
+                if (interval!=null) {
+                    clearInterval(interval);
+                }
             },
             onData: function (data) {
                 console.log(data)
@@ -94,12 +120,10 @@
     }
 
     function cloneEle(obj) {
-        let tr = $("#tb_info").children().eq(0);
-        $("#tb_info").append(tr.html());
-        let length = $("#tb_info").children().length();
-        let newElement = $("#tb_info").children().eq(length-1);
-        newElement.find('.validate').show()
-        newElement.find('.cancel').hide()
+        var $tr = $('#templateTr').clone(true);
+        $tr.attr('id','');
+        $('#tb_info').append($tr);
+        $tr.show();
     }
 </script>
 </body>

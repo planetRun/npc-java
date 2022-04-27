@@ -1,6 +1,8 @@
 package org.choviwu.npcjava.plugin.socket;
 
 import lombok.extern.slf4j.Slf4j;
+import org.choviwu.npcjava.plugin.domain.TClient;
+import org.choviwu.npcjava.plugin.mapper.TClientMapper;
 import org.choviwu.npcjava.plugin.service.impl.SocketService;
 import org.choviwu.npcjava.plugin.utils.PathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -18,6 +21,9 @@ public class NpcSocketHandler implements WebSocketHandler {
 
     @Autowired
     private SocketService socketService;
+
+    @Autowired
+    private TClientMapper tClientMapper;
 
     /**
      * 用户连接上WebSocket的回调
@@ -74,14 +80,16 @@ public class NpcSocketHandler implements WebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
-        while (true) {
-            close(webSocketSession);
-        }
+        close(webSocketSession);
     }
 
     private void close(WebSocketSession webSocketSession) {
         String  npcUid = (String) webSocketSession.getAttributes().get("npc_uid");
         map.remove(npcUid);
+        TClient tClient = tClientMapper.query(npcUid);
+        if (Objects.nonNull(tClient)) {
+            tClientMapper.updateById(2, tClient.getId());
+        }
     }
 
     @Override

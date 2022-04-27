@@ -54,6 +54,7 @@ public class TemplateUtils {
             // 追加body 模板数据
             String replacePlaceholders = propertyPlaceholderHelper.replacePlaceholders(BODY_TEMPLATE, properties);
             bufferTemplate.append(replacePlaceholders);
+
             IOUtils.write(bufferTemplate.toString().getBytes(StandardCharsets.UTF_8), new FileOutputStream(confPath));
             transferDTOList.add(transferDTO);
             return true;

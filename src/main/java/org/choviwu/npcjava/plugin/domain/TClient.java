@@ -1,5 +1,7 @@
 package org.choviwu.npcjava.plugin.domain;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -7,6 +9,7 @@ import java.util.Date;
  * 
  * @TableName t_client
  */
+@Data
 public class TClient implements Serializable {
     /**
      * 
@@ -17,6 +20,11 @@ public class TClient implements Serializable {
      * 公网域名+端口
      */
     private String targetUrl;
+
+    /**
+     * 本地域名+端口
+     */
+    private String localUrl;
 
     /**
      * 
@@ -42,6 +50,11 @@ public class TClient implements Serializable {
      * 
      */
     private String connType;
+
+    /**
+     *
+     */
+    private String npcUid;
 
     /**
      * 
