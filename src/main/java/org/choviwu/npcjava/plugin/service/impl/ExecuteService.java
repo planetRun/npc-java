@@ -3,6 +3,7 @@ package org.choviwu.npcjava.plugin.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.choviwu.npcjava.plugin.App;
 import org.choviwu.npcjava.plugin.conf.NpcConfig;
+import org.choviwu.npcjava.plugin.constant.ConnectInfo;
 import org.choviwu.npcjava.plugin.domain.dto.TransferDTO;
 import org.choviwu.npcjava.plugin.utils.TemplateUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -19,14 +20,16 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 
 @Slf4j
-@Component
 public class ExecuteService implements InitializingBean {
 
 
-    @Autowired
+    public ExecuteService(NpcConfig npcConfig, String operateBean) {
+        this.npcConfig = npcConfig;
+        this.operateBean = operateBean;
+    }
+
     private NpcConfig npcConfig;
 
-    @Autowired
     private String operateBean;
 
     private Process process;
@@ -47,11 +50,12 @@ public class ExecuteService implements InitializingBean {
 
     public void execCancelCMD(WebSocketSession webSocketSession, String confPath) {
         try {
-            boolean flag = TemplateUtils.cancelNpc((String) webSocketSession.getAttributes().get("npc_uid"), confPath);
+            String npc_uid = (String) webSocketSession.getAttributes().get("npc_uid");
+            boolean flag = TemplateUtils.cancelNpc(npc_uid, confPath);
             if (flag) {
                 restart(webSocketSession);
             } else {
-                stop();
+                stop(npc_uid);
             }
         } catch (IOException e) {
             log.info("执行cmd命令失败", e);
@@ -65,19 +69,27 @@ public class ExecuteService implements InitializingBean {
         }catch (Exception e) {}
     }
 
-    private void stop() throws IOException {
-        Runtime.getRuntime().exec(operateBean + " stop");
+    private void stop(String uid) throws IOException {
+        ExecuteService executeService = ConnectInfo.CONNECT_MAP.get(uid);
+
+        if (executeService!=null) {
+            executeService.process.destroy();
+            synchronized (this) {
+                ConnectInfo.CONNECT_MAP.remove(uid);
+            }
+        }
     }
 
     private void restart(WebSocketSession webSocketSession) throws IOException {
+        String npc_uid = (String) webSocketSession.getAttributes().get("npc_uid");
         StopWatch stopWatch = new StopWatch();
         log.info("准备执行stop...");
-        stop();
+        stop(npc_uid);
         log.info("stop执行成功...{}", stopWatch.toString());
         log.info("准备执行启动...");
         process = Runtime.getRuntime().exec(operateBean + " -config=" + npcConfig.getConfPath());
         log.info("启动执行成功...{}", stopWatch.toString());
-
+        ConnectInfo.CONNECT_MAP.put(npc_uid, this);
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));){
 
             char[] arr = new char[2048];
@@ -91,5 +103,6 @@ public class ExecuteService implements InitializingBean {
                 webSocketSession.sendMessage(new TextMessage(readLine));
             }
         }
+
     }
 }

@@ -20,7 +20,8 @@ public class SocketService {
     private NpcConfig npcConfig;
 
     @Autowired
-    private ExecuteService executeService;
+    private String operateBean;
+
 
     private static final ThreadPoolExecutor EXECUTOR = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
@@ -33,6 +34,7 @@ public class SocketService {
         }
 
         if (Objects.equals("cancel", payload)) {
+            ExecuteService executeService = new ExecuteService(npcConfig, operateBean);
             EXECUTOR.execute(() -> executeService.execCancelCMD(webSocketSession, npcConfig.getConfPath()));
         }else if (Objects.equals("ping", payload) || Objects.equals("pong", payload)) {
 
@@ -42,6 +44,7 @@ public class SocketService {
             TransferDTO transferDTO = JSON.parseObject(payload, TransferDTO.class);
             System.out.println("连接");
             transferDTO.setNpcUid((String)webSocketSession.getAttributes().get("npc_uid"));
+            ExecuteService executeService = new ExecuteService(npcConfig, operateBean);
             EXECUTOR.execute(() -> executeService.execCMD(transferDTO, webSocketSession, npcConfig.getConfPath()));
         }
     }
