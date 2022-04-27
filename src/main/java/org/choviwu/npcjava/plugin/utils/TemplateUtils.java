@@ -67,7 +67,7 @@ public class TemplateUtils {
         try {
             Optional<TransferDTO> transferOpt = transferDTOList.stream().filter(c -> Objects.equals(c.getNpcUid(), webUid)).findAny();
             if (!transferOpt.isPresent()) {
-                return true;
+                return false;
             }
             TransferDTO transferDTO = transferOpt.get();
             transferDTOList.remove(transferDTO);
