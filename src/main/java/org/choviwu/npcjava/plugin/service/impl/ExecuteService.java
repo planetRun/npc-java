@@ -50,6 +50,8 @@ public class ExecuteService implements InitializingBean {
             boolean flag = TemplateUtils.cancelNpc((String) webSocketSession.getAttributes().get("npc_uid"), confPath);
             if (flag) {
                 restart(webSocketSession);
+            } else {
+                stop();
             }
         } catch (IOException e) {
             log.info("执行cmd命令失败", e);
