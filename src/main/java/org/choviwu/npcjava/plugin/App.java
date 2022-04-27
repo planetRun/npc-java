@@ -1,13 +1,13 @@
 package org.choviwu.npcjava.plugin;
 
-import org.choviwu.npcjava.plugin.conf.NpcConfig;
-import org.choviwu.npcjava.plugin.domain.dto.TransferDTO;
-import org.choviwu.npcjava.plugin.mapper.OptionsMapper;
-import org.choviwu.npcjava.plugin.mapper.TClientMapper;
-import org.choviwu.npcjava.plugin.service.impl.ClientService;
-import org.choviwu.npcjava.plugin.service.impl.ExecuteService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.choviwu.npcjava.plugin.utils.PathUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
 /**
  * 0. 设置域名服务
@@ -20,37 +20,37 @@ import org.springframework.stereotype.Component;
  * 7. 关闭连接
  */
 @Component
-public class App  {
+@Slf4j
+public class App {
 
 
-    @Autowired
-    private OptionsMapper optionsMapper;
+    @Bean
+    public String operateBean() {
+        String property = System.getProperty("os.name");
+        if (property.toLowerCase().contains("wind")) {
+            InputStream exeStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("npc.exe");
+            try {
+                byte[] bytes = IOUtils.toByteArray(exeStream);
 
-    @Autowired
-    private TClientMapper tClientMapper;
+                IOUtils.write(bytes, new FileOutputStream(PathUtils.getExePath("npc.exe")));
+            } catch (Exception e) {
+                throw new RuntimeException("读取文件失败", e);
+            }
+            return PathUtils.getExePath("npc.exe");
+        } else {
+            InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("npc");
+            try {
+                byte[] bytes = IOUtils.toByteArray(resourceAsStream);
 
-    @Autowired
-    private ClientService clientService;
-
-    @Autowired
-    private NpcConfig npcConfig;
-
-    @Autowired
-    private ExecuteService executeService;
-
-     // ./npc.exe -server=119.91.138.119:8024 -vkey="+vkey+" -type=tcp -password="+password+" -target="+target+" -local_port="+localport
-
-    public void init() {
-
-        TransferDTO transferDTO = new TransferDTO();
-        transferDTO.setLocalAddress("localhost:8082");
-        transferDTO.setRemoteAddress("119.91.138.119:8024");
-        transferDTO.setTargetUrl("demo.test.choviwu.top");
-        transferDTO.setNpcUid("test1");
-        executeService.execCMD(transferDTO, null, npcConfig.getConfPath());
-
-//        boolean fill = TemplateUtils.fill(transferDTO, npcConfig.getConfPath());
-//        String result = clientService.addClient("http://nps.choviwu.top", "12111");
+                IOUtils.write(bytes, new FileOutputStream(PathUtils.getExePath("npc")));
+            } catch (Exception e) {
+                throw new RuntimeException("读取文件失败", e);
+            }
+        }
+        return PathUtils.getExePath("npc");
     }
+
+    // ./npc.exe -server=119.91.138.119:8024 -vkey="+vkey+" -type=tcp -password="+password+" -target="+target+" -local_port="+localport
+
 
 }

@@ -14,8 +14,6 @@ public class NpcConfig {
 
     private String authKey;
 
-    private String exePath;
-
     private String confPath;
 
 

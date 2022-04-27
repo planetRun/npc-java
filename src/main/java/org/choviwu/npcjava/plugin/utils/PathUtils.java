@@ -1,5 +1,10 @@
 package org.choviwu.npcjava.plugin.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+
+@Slf4j
 public class PathUtils {
 
     public static String getAppPath(Class<?> cls){
@@ -83,4 +88,10 @@ public class PathUtils {
         return realPath;
 
     }//getAppPath定义结束
+
+    public static String getExePath(String fileName) {
+        String property = System.getProperty("user.home");
+        log.info("用户 home: {}", property);
+        return property + File.separator + fileName;
+    }
 }

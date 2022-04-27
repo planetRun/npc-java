@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <title>设置</title>
+
+</head>
+<body>
+<div th:include="components/header :: header"></div>
+<fieldset class="layui-elem-field layui-field-title zyl_mar_02">
+    <legend>监听</legend>
+</fieldset>
+<div class="layui-col-sm12 layui-col-md12">
+    <button class="layui-btn layui-btn-fluid" id="insertTb" onclick="cloneEle(this)">添加</button>
+</div>
+<table class="layui-table">
+    <colgroup>
+        <col width="150">
+        <col width="200">
+        <col>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>NPS远程服务器</th>
+        <th>泛解析的域名</th>
+        <th>内网服务地址</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="tb_info">
+        <tr class="tab1">
+            <td><input type="text" name="remoteAddress" lay-verify="required|remoteAddress" autocomplete="off"
+                       value="119.91.138.119:8024" placeholder="NPS远程服务器, 如 120.11.12.11:8024" class="layui-input"></td>
+            <td><input type="text" name="targetUrl" lay-verify="required|targetUrl" autocomplete="off"
+                       value="test.test.choviwu.top"
+                       placeholder="泛解析的域名" class="layui-input"></td>
+            <td><input type="text" name="localAddress" lay-verify="required|localAddress" autocomplete="off"
+                       value="localhost:8082" placeholder="内网服务地址ip:port" class="layui-input"></td>
+            <td>
+                <div class="layui-col-sm12 layui-col-md12">
+                    <button class="layui-btn layui-btn-fluid validate" onclick="validator(this)">验证</button>
+                    <button class="layui-btn layui-btn-fluid cancel" onclick="cancel(this)" style="display: none">取消</button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script src="/static/js/drop.js" charset="utf-8"></script>
+<script src="/static/js/js.cookie.js" charset="utf-8"></script>
+<script>
+    var client;
+
+    function validator(obj) {
+        layer.msg('请求中...', {
+            icon: 16,
+            time: 1000 //请求
+        });
+        let parent = $(obj).parent().parent().parent();
+        var td = $(parent).children('td');
+        let remoteAddress = td.eq(0).find('input').val();
+        let targetUrl = td.eq(1).find('input').val();
+        let localAddress = td.eq(2).find('input').val();
+        var data = {
+            remoteAddress,
+            targetUrl,
+            localAddress,
+        }
+        client = new WSSHClient();
+        client.setHost(window.location.host)
+        client.connect({
+            onError: function (error) {
+                //连接失败回调
+                console.log('Error: ' + error + '\r\n');
+            },
+            onConnect: function () {
+                //连接成功回调
+                client.sendInitData(data);
+                $(obj).hide()
+                $(obj).next().show()
+            },
+            onClose: function () {
+                //连接关闭回调
+                console.log("\rconnection closed");
+            },
+            onData: function (data) {
+                console.log(data)
+            }
+        });
+    }
+
+    function cancel(obj) {
+        client.sendClientData('cancel', 'cancel');
+        $(obj).prev().show();
+        $(obj).hide()
+    }
+
+    function cloneEle(obj) {
+        let tr = $("#tb_info").children().eq(0);
+        $("#tb_info").append(tr.html());
+        let length = $("#tb_info").children().length();
+        let newElement = $("#tb_info").children().eq(length-1);
+        newElement.find('.validate').show()
+        newElement.find('.cancel').hide()
+    }
+</script>
+</body>
+</html>

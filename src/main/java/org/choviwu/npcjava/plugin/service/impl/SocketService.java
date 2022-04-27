@@ -31,13 +31,17 @@ public class SocketService {
         if (StringUtils.isEmpty(payload)) {
             return;
         }
-        if (Objects.equals("ping", payload) || Objects.equals("pong", payload)) {
+
+        if (Objects.equals("cancel", payload)) {
+            EXECUTOR.execute(() -> executeService.execCancelCMD(webSocketSession, npcConfig.getConfPath()));
+        }else if (Objects.equals("ping", payload) || Objects.equals("pong", payload)) {
 
 
         } else {
             //
             TransferDTO transferDTO = JSON.parseObject(payload, TransferDTO.class);
             System.out.println("连接");
+            transferDTO.setNpcUid((String)webSocketSession.getAttributes().get("npc_uid"));
             EXECUTOR.execute(() -> executeService.execCMD(transferDTO, webSocketSession, npcConfig.getConfPath()));
         }
     }
