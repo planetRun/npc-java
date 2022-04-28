@@ -14,6 +14,10 @@ public interface Constant {
 
    List<TransferDTO> TRANSFER_ONLINE_LIST = new CopyOnWriteArrayList<>();
 
+
+
+   StringBuffer bufferTemplate = new StringBuffer();
+
    String NPC_UID_NAME = "npc_uid";
 
    String MESSAGE = "success";

@@ -50,11 +50,6 @@ public class SocketService {
         if (Objects.equals("cancel", payload)) {
             ExecuteService executeService = new ExecuteService(npcConfig, operateBean);
             EXECUTOR.execute(() -> executeService.execCancelCMD(webSocketSession, npcConfig.getConfPath()));
-            try {
-                webSocketSession.close();
-            } catch (IOException e) {
-                log.error("io exception!", e);
-            }
         }else if (Objects.equals("ping", payload) || Objects.equals("pong", payload)) {
             try {
                 webSocketSession.sendMessage(new TextMessage(Message.getMessage("pong")));

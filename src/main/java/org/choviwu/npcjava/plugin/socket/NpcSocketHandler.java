@@ -7,6 +7,7 @@ import org.choviwu.npcjava.plugin.domain.TClient;
 import org.choviwu.npcjava.plugin.domain.dto.TransferDTO;
 import org.choviwu.npcjava.plugin.mapper.TClientMapper;
 import org.choviwu.npcjava.plugin.service.impl.SocketService;
+import org.choviwu.npcjava.plugin.utils.TemplateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
@@ -106,6 +107,7 @@ public class NpcSocketHandler implements WebSocketHandler {
             Constant.TRANSFER_ONLINE_LIST.remove(transferDTO);
             tClientMapper.updateById(2, tClient.getId());
         }
+        TemplateUtils.cancelNpc(npcUid, npcConfig.getConfPath());
     }
 
     @Override

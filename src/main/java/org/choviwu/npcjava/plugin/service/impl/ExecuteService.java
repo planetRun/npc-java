@@ -57,6 +57,7 @@ public class ExecuteService implements InitializingBean {
             } else {
                 stop(npc_uid);
             }
+            webSocketSession.close();
         } catch (IOException e) {
             log.info("执行cmd命令失败", e);
         }

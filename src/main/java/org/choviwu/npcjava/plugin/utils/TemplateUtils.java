@@ -20,8 +20,6 @@ public class TemplateUtils {
 
     private static final String BODY_TEMPLATE;
 
-    private static StringBuffer bufferTemplate = new StringBuffer();
-
     static PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}", ":", true);
 
     static {
@@ -49,6 +47,7 @@ public class TemplateUtils {
             Map<String, String> describe = BeanUtils.describe(transferDTO);
             Properties properties = new Properties();
             properties.putAll(describe);
+            StringBuffer bufferTemplate = Constant.bufferTemplate;
             if (bufferTemplate.length() <= 0) {
                 String commonText = propertyPlaceholderHelper.replacePlaceholders(NPC_TEMPLATE, properties);
                 bufferTemplate.append(commonText);
@@ -78,13 +77,19 @@ public class TemplateUtils {
             }
             TransferDTO transferDTO = transferOpt.get();
             transferOnlineList.remove(transferDTO);
+
+            StringBuffer bufferTemplate = Constant.bufferTemplate;
             Map<String, String> describe = BeanUtils.describe(transferDTO);
             Properties properties = new Properties();
             properties.putAll(describe);
+            String replacePlaceholders = propertyPlaceholderHelper.replacePlaceholders(BODY_TEMPLATE, properties);
+            String replacedTemplate = replacePlaceholders;
             // 先删后插
-            for (TransferDTO dto : transferOnlineList) {
-                fill(dto, confPath);
-            }
+            String replace = bufferTemplate.toString().replace(replacedTemplate, "");
+            bufferTemplate.delete(0, bufferTemplate.length()-1);
+            Constant.bufferTemplate.append(replace);
+            log.info("replace template: {}", Constant.bufferTemplate.toString());
+            IOUtils.write(bufferTemplate.toString().getBytes(StandardCharsets.UTF_8), new FileOutputStream(confPath));
             return !transferOnlineList.isEmpty();
         } catch (Exception e) {
             e.printStackTrace();

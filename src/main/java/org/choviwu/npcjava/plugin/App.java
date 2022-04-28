@@ -84,7 +84,7 @@ public class App {
         // readNpcConfig
         readList();
 
-//         tClientMapper.delete();
+         tClientMapper.delete();
 
         Thread hook = new Thread(() -> {
             //
