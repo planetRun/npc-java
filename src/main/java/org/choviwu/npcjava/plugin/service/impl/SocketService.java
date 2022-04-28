@@ -3,9 +3,12 @@ package org.choviwu.npcjava.plugin.service.impl;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.choviwu.npcjava.plugin.conf.NpcConfig;
+import org.choviwu.npcjava.plugin.constant.Constant;
+import org.choviwu.npcjava.plugin.data.Message;
 import org.choviwu.npcjava.plugin.domain.TClient;
 import org.choviwu.npcjava.plugin.domain.dto.TransferDTO;
 import org.choviwu.npcjava.plugin.mapper.TClientMapper;
+import org.choviwu.npcjava.plugin.utils.PatternUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -14,7 +17,6 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,7 +45,7 @@ public class SocketService {
             return;
         }
 
-        String npc_uid = (String) webSocketSession.getAttributes().get("npc_uid");
+        String npc_uid = (String) webSocketSession.getAttributes().get(Constant.NPC_UID_NAME);
         log.info(">>>>>>>>>>>npcUid {}, data: {}", npc_uid, payload);
         if (Objects.equals("cancel", payload)) {
             ExecuteService executeService = new ExecuteService(npcConfig, operateBean);
@@ -55,7 +57,7 @@ public class SocketService {
             }
         }else if (Objects.equals("ping", payload) || Objects.equals("pong", payload)) {
             try {
-                webSocketSession.sendMessage(new TextMessage("pong"));
+                webSocketSession.sendMessage(new TextMessage(Message.getMessage("pong")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -63,22 +65,35 @@ public class SocketService {
             //
             TransferDTO transferDTO = JSON.parseObject(payload, TransferDTO.class);
             System.out.println("连接");
-            transferDTO.setNpcUid((String)webSocketSession.getAttributes().get("npc_uid"));
+            transferDTO.setRemoteAddress(PatternUtils.replaceUrl(transferDTO.getRemoteAddress()));
+            transferDTO.setTargetUrl(PatternUtils.replaceUrl(transferDTO.getTargetUrl()));
+            transferDTO.setLocalAddress(PatternUtils.replaceUrl(transferDTO.getLocalAddress()));
+            String oldNpcUid = transferDTO.getNpcUid();
+            transferDTO.setNpcUid((String)webSocketSession.getAttributes().get(Constant.NPC_UID_NAME));
             ExecuteService executeService = new ExecuteService(npcConfig, operateBean);
             EXECUTOR.execute(() -> executeService.execCMD(transferDTO, webSocketSession, npcConfig.getConfPath()));
-            TClient tClient = new TClient();
-            tClient.setClientVkey("1234");
-            tClient.setClientBasicPassword("");
-            tClient.setClientBasicName("");
-            tClient.setNpcUid(npc_uid);
-            tClient.setLocalUrl(transferDTO.getLocalAddress());
-            tClient.setServerAddr(transferDTO.getRemoteAddress());
-            tClient.setTargetUrl(transferDTO.getTargetUrl());
-            tClient.setStatus(1);
-            tClient.setConnType("tcp");
-            tClient.setTransType(1);
-            tClient.setCreateTime(new Date());
-            tClientMapper.insert(tClient);
+
+            if (!StringUtils.isEmpty(oldNpcUid)) {
+                TClient query = tClientMapper.query(oldNpcUid);
+                query.setServerAddr(transferDTO.getRemoteAddress());
+                query.setLocalUrl(transferDTO.getLocalAddress());
+                query.setTargetUrl(transferDTO.getTargetUrl());
+                tClientMapper.updateMainById(query);
+            } else {
+                TClient tClient = new TClient();
+                tClient.setClientVkey("1234");
+                tClient.setClientBasicPassword("");
+                tClient.setClientBasicName("");
+                tClient.setNpcUid(npc_uid);
+                tClient.setLocalUrl(transferDTO.getLocalAddress());
+                tClient.setServerAddr(transferDTO.getRemoteAddress());
+                tClient.setTargetUrl(transferDTO.getTargetUrl());
+                tClient.setStatus(1);
+                tClient.setConnType("tcp");
+                tClient.setTransType(1);
+                tClient.setCreateTime(new Date());
+                tClientMapper.insert(tClient);
+            }
         }
     }
 }

@@ -2,14 +2,25 @@ package org.choviwu.npcjava.plugin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.choviwu.npcjava.plugin.conf.NpcConfig;
+import org.choviwu.npcjava.plugin.constant.Constant;
+import org.choviwu.npcjava.plugin.domain.TClient;
+import org.choviwu.npcjava.plugin.exception.NpcException;
 import org.choviwu.npcjava.plugin.mapper.TClientMapper;
+import org.choviwu.npcjava.plugin.service.impl.ExecuteService;
 import org.choviwu.npcjava.plugin.utils.PathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 0. 设置域名服务
@@ -27,6 +38,9 @@ public class App {
 
     @Autowired
     private TClientMapper tClientMapper;
+
+    @Autowired
+    private NpcConfig npcConfig;
 
     @Bean
     public String operateBean() {
@@ -66,25 +80,41 @@ public class App {
 
     public void init() {
 
-         tClientMapper.delete();
-//        TClient tClient = tClientMapper.query("ttt_web");
-//        if (Objects.nonNull(tClient)) {
-//            tClientMapper.updateById(2, tClient.getId());
-//        }
-//
-//        tClient = new TClient();
-//        tClient.setClientVkey("1234");
-//        tClient.setClientBasicPassword("");
-//        tClient.setClientBasicName("");
-//        tClient.setLocalUrl("localhost:8787");
-//        tClient.setServerAddr("119.91.138.119:8024");
-//        tClient.setTargetUrl("demo2.test.choviwu.top");
-//        tClient.setStatus(1);
-//        tClient.setNpcUid(RandomUtil.randomUUID()+"_web");
-//        tClient.setConnType("tcp");
-//        tClient.setTransType(1);
-//        tClient.setCreateTime(new Date());
-//        tClientMapper.insert(tClient);
+        deleteConf();
+        // readNpcConfig
+        readList();
+
+//         tClientMapper.delete();
+
+        Thread hook = new Thread(() -> {
+            //
+            log.info("清理内存");
+
+            Constant.CONNECT_MAP.forEach((k,v) -> {
+                try {
+                    log.info("------> {}", k);
+                    v.stop(k);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+        Runtime.getRuntime().addShutdownHook(hook);
+
+    }
+
+    public List<TClient> readList() {
+        List<TClient> tClients = tClientMapper.queryAll();
+        return tClients;
+    }
+
+    private void deleteConf() {
+        String confPath = npcConfig.getConfPath();
+        try {
+            Files.deleteIfExists(Paths.get(confPath));
+        } catch (Exception e) {
+            throw new NpcException(30001, "文件删除失败");
+        }
     }
 
     // ./npc.exe -server=119.91.138.119:8024 -vkey="+vkey+" -type=tcp -password="+password+" -target="+target+" -local_port="+localport

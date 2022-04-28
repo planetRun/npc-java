@@ -14,6 +14,9 @@ import java.util.List;
 @Mapper
 public interface TClientMapper {
 
+    @Select("select * from t_client")
+    public List<TClient> queryAll();
+
     @Select("select * from t_client where npc_uid = #{npcUid}")
     public TClient query(@Param("npcUid") String npcUid);
 
@@ -27,6 +30,10 @@ public interface TClientMapper {
 
     @Update("update t_client set status = #{status} where id = #{id}")
     int updateById(@Param("status") int status,@Param("id")int id);
+
+
+    @Update("update t_client set target_url = #{targetUrl},local_url=#{localUrl},server_addr=#{serverAddr}  where id = #{id}")
+    int updateMainById(TClient tClient);
 
 
     @Delete("delete from t_client ")

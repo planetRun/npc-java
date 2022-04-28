@@ -33,16 +33,17 @@ public class TransferDTO implements Serializable {
      */
     private String localAddress = "";
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TransferDTO that = (TransferDTO) o;
-        return Objects.equals(remoteAddress, that.remoteAddress) && Objects.equals(targetUrl, that.targetUrl) && Objects.equals(localAddress, that.localAddress);
+        return Objects.equals(remoteAddress, that.remoteAddress) && Objects.equals(npcUid, that.npcUid) && Objects.equals(targetUrl, that.targetUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(remoteAddress, targetUrl, localAddress);
+        return Objects.hash(remoteAddress, npcUid, targetUrl);
     }
 }

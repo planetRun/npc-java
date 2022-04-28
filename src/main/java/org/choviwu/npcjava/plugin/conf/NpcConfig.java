@@ -15,5 +15,6 @@ public class NpcConfig {
 
     private String confPath;
 
+    private Integer connectSize = 15;
 
 }

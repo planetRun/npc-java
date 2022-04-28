@@ -1,5 +1,6 @@
 package org.choviwu.npcjava.plugin.interceptor;
 
+import org.choviwu.npcjava.plugin.constant.Constant;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -24,7 +25,7 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
             //生成一个UUID
             String uuid = UUID.randomUUID().toString().replace("-","");
             //将uuid放到websocketsession中
-            map.put("npc_uid", uuid);
+            map.put(Constant.NPC_UID_NAME, uuid);
             return true;
         } else {
             return false;

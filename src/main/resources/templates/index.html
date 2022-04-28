@@ -10,13 +10,13 @@
     <legend>监听</legend>
 </fieldset>
 <div class="layui-col-sm12 layui-col-md12">
-    <button class="layui-btn layui-btn-fluid" id="insertTb" onclick="cloneEle(this)">添加</button>
+    <button class="layui-btn " id="insertTb" onclick="cloneEle(this)">添加</button>
 </div>
 <table class="layui-table">
     <colgroup>
         <col width="150">
         <col width="200">
-        <col>
+        <col width="200">
     </colgroup>
     <thead>
     <tr>
@@ -26,19 +26,21 @@
         <th>操作</th>
     </tr>
     </thead>
-    <tbody id="tb_info">
-        <tr class="tab1">
-            <td><input type="text" name="remoteAddress" lay-verify="required|remoteAddress" autocomplete="off"
-                       value="119.91.138.119:8024" placeholder="NPS远程服务器, 如 120.11.12.11:8024" class="layui-input"></td>
-            <td><input type="text" name="targetUrl" lay-verify="required|targetUrl" autocomplete="off"
-                       value="test.test.choviwu.top"
+    <tbody id="tb_info" >
+
+        <tr class="tab1"  th:each="val : ${data}">
+            <td><input type="text" name="remoteAddress"  style="width: 200px" lay-verify="required|remoteAddress" autocomplete="off"
+                       th:value="${val.serverAddr}" placeholder="NPS远程服务器, 如 120.11.12.11:8024" class="layui-input"></td>
+            <td><input type="text" name="targetUrl" style="width: 200px" lay-verify="required|targetUrl" autocomplete="off"
+                       th:value="${val.targetUrl}"
                        placeholder="泛解析的域名" class="layui-input"></td>
-            <td><input type="text" name="localAddress" lay-verify="required|localAddress" autocomplete="off"
-                       value="localhost:8082" placeholder="内网服务地址ip:port" class="layui-input"></td>
+            <td><input type="text" name="localAddress" style="width: 200px" lay-verify="required|localAddress" autocomplete="off"
+                       th:value="${val.localUrl}"  placeholder="内网服务地址ip:port" class="layui-input"></td>
+           <td style="display: none"> <input type="hidden" th:value="${val.npcUid}" name="npcUid"></td>
             <td>
                 <div class="layui-col-sm12 layui-col-md12">
-                    <button class="layui-btn layui-btn-fluid validate" onclick="validator(this)">验证</button>
-                    <button class="layui-btn layui-btn-fluid cancel" onclick="cancel(this)" style="display: none">取消</button>
+                    <button class="layui-btn validate" onclick="validator(this)">验证</button>
+                    <button class="layui-btn layui-btn-warm cancel" onclick="cancel(this)" style="display: none">取消</button>
                 </div>
             </td>
         </tr>
@@ -50,10 +52,11 @@
                        placeholder="泛解析的域名" class="layui-input"></td>
             <td><input type="text" name="localAddress" lay-verify="required|localAddress" autocomplete="off"
                        value="localhost:8082" placeholder="内网服务地址ip:port" class="layui-input"></td>
+            <td style="display: none"> <input type="hidden" value="" name="npcUid"></td>
             <td>
                 <div class="layui-col-sm12 layui-col-md12">
-                    <button class="layui-btn layui-btn-fluid validate" onclick="validator(this)">验证</button>
-                    <button class="layui-btn layui-btn-fluid cancel" onclick="cancel(this)" style="display: none">取消</button>
+                    <button class="layui-btn validate" onclick="validator(this)">验证</button>
+                    <button class="layui-btn layui-btn-warm cancel" onclick="cancel(this)" style="display: none">取消</button>
                 </div>
             </td>
         </tr>
@@ -75,10 +78,12 @@
         let remoteAddress = td.eq(0).find('input').val();
         let targetUrl = td.eq(1).find('input').val();
         let localAddress = td.eq(2).find('input').val();
+        let npcUid = td.eq(3).find('input').val();
         var data = {
             remoteAddress,
             targetUrl,
             localAddress,
+            npcUid,
         }
         client = new WSSHClient();
         client.setHost(window.location.host);
@@ -106,9 +111,18 @@
                 if (interval!=null) {
                     clearInterval(interval);
                 }
+                $(obj).show()
+                $(obj).next().hide();
             },
             onData: function (data) {
                 console.log(data)
+                let parse = JSON.parse(data);
+                if (parse.code != 1) {
+                    layer.msg(parse.data, {
+                        icon: 2,
+                        time: 1000 //请求
+                    });
+                }
             }
         });
     }
