@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 @Slf4j
-public class ExecuteService implements InitializingBean {
+public class ExecuteService {
 
 
     public ExecuteService(NpcConfig npcConfig, String operateBean) {
@@ -63,12 +63,12 @@ public class ExecuteService implements InitializingBean {
         }
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        try {
-            TemplateUtils.init(npcConfig.getConfPath());
-        }catch (Exception e) {}
-    }
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//        try {
+//            TemplateUtils.init(npcConfig.getConfPath());
+//        }catch (Exception e) {}
+//    }
 
     public void stop(String uid) throws IOException {
         ExecuteService executeService = Constant.CONNECT_MAP.get(uid);

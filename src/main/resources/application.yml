@@ -15,4 +15,4 @@ spring:
       enabled: true
       path: /h2
   profiles:
-    active: dev
+    active: mac

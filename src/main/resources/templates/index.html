@@ -28,7 +28,7 @@
     </thead>
     <tbody id="tb_info" >
 
-        <tr class="tab1"  th:each="val : ${data}">
+        <tr class="tab1"  th:each="val,state : ${data}">
             <td><input type="text" name="remoteAddress"  style="width: 200px" lay-verify="required|remoteAddress" autocomplete="off"
                        th:value="${val.serverAddr}" placeholder="NPS远程服务器, 如 120.11.12.11:8024" class="layui-input"></td>
             <td><input type="text" name="targetUrl" style="width: 200px" lay-verify="required|targetUrl" autocomplete="off"
@@ -39,8 +39,8 @@
            <td style="display: none"> <input type="hidden" th:value="${val.npcUid}" name="npcUid"></td>
             <td>
                 <div class="layui-col-sm12 layui-col-md12">
-                    <button class="layui-btn validate" onclick="validator(this)">验证</button>
-                    <button class="layui-btn layui-btn-warm cancel" onclick="cancel(this)" style="display: none">取消</button>
+                    <button class="layui-btn validate"   onclick="validator(this)">验证</button>
+                    <button class="layui-btn layui-btn-warm cancel"   onclick="cancel(this)" style="display: none">取消</button>
                 </div>
             </td>
         </tr>
@@ -68,13 +68,25 @@
 <script>
 
     //todo 需要声明一个数组
-    var client;
+    var clientArr = new Array();
+
+    // $(function (){
+    //     let $tr = $("#tb_info tr");
+    //     $($tr).each((i,v) => {
+    //         console.log(v, i)
+    //
+    //         $(v).find('.validate').attr('data-id', i)
+    //         $(v).find('.cancel').attr('data-id', i)
+    //     })
+    // })
 
     function validator(obj) {
         layer.msg('请求中...', {
             icon: 16,
             time: 1000 //请求
         });
+
+
         let parent = $(obj).parent().parent().parent();
         var td = $(parent).children('td');
         let remoteAddress = td.eq(0).find('input').val();
@@ -87,7 +99,7 @@
             localAddress,
             npcUid,
         }
-        client = new WSSHClient();
+        var client = new WSSHClient();
         client.setHost(window.location.host);
         var interval = null;
         client.connect({
@@ -106,6 +118,10 @@
                     client.sendClientData('ping', 'ping');
                     console.log('ping')
                 },5000);
+                $(obj).attr('data-id', getLastIndex())
+                $(obj).next().attr('data-id', getLastIndex())
+                clientArr.push(client);
+                console.log("arr push ==> ", clientArr)
             },
             onClose: function () {
                 //连接关闭回调
@@ -115,6 +131,9 @@
                 }
                 $(obj).show()
                 $(obj).next().hide();
+
+                clientArr.splice($.inArray(client,clientArr),1);
+                console.log("arr rem ==> ", clientArr)
             },
             onData: function (data) {
                 console.log(data)
@@ -130,16 +149,25 @@
     }
 
     function cancel(obj) {
-        client.sendClientData('cancel', 'cancel');
+        let id = parseInt($(obj).data('id'));
+        console.log("cancelId ==> ", id)
+        clientArr[id].sendClientData('cancel', 'cancel');
         $(obj).prev().show();
         $(obj).hide()
     }
 
     function cloneEle(obj) {
+        let length = clientArr.length;
         var $tr = $('#templateTr').clone(true);
         $tr.attr('id','');
+        // $tr.find('.validate').attr('data-id', length);
+        // $tr.find('.cancel').attr('data-id', length);
         $('#tb_info').append($tr);
         $tr.show();
+    }
+
+    function getLastIndex() {
+        return clientArr.length;
     }
 </script>
 </body>
