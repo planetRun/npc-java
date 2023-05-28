@@ -4,5 +4,5 @@ server:
 npc:
   authKey: nishizhua
   serverAddr: xxxxx:8024
-  confPath: /xxx/.npc/npc.conf
+  confPath: /root/.npc/npc.conf
   vkey: vgfjdjgd-32842-dsvjsd0234283-32432
